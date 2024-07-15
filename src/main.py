@@ -11,9 +11,9 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 
 # when someone asks to recommend a game
-def recommend(msg):
+def recommend(msg, author):
     prompt = msg[5:]
-    response = gpt.askGPT(prompt)
+    response = gpt.askGPT(prompt, author)
     return response
 
 # when bot is turned on
@@ -29,9 +29,11 @@ async def on_message(message):
     
     msg = message.content
  
+    # if msg starts with '$hello'
     if msg.startswith("$hello"):
         await message.channel.send(f"Hello {message.author}!")
+    # if msg starts with '$rec'
     elif msg.startswith("$rec"):
-        await message.channel.send(recommend(msg))
+        await message.channel.send(recommend(msg, message.author))
 
 client.run(DISCORD_TOKEN)
