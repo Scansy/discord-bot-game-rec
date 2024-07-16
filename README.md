@@ -6,6 +6,7 @@ So far:
 - Says hello to you with $hello
 - Ask it by starting your message with $rec, and then the question you want to ask! e.g. "$rec recommend me something similar to Valorant"
 - User's chat history is saved
+- Users have ability to add, delete, and save their game lib for the bot to pick what to play.
 
 ### Stacks
 This project uses Python and OpenAI's GPT 4 to power the chatbot.
