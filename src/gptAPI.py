@@ -1,4 +1,6 @@
 from openai import OpenAI
+import json
+import os
 
 GPT_MODEL = "gpt-4o"
 INITIAL_CONTEXT_PROMPT = [
@@ -9,10 +11,29 @@ INITIAL_CONTEXT_PROMPT = [
       {"role": "assistant", "content": "If you liked Devil May Cry 5, you should try Bayonetta 2. It features intense combat, stylish moves, and a captivating story, making it a thrilling action game experience."}
     ] # context prompts
 
+def getChatHistory(author: str):
+  path = f"./src/chat-history/{author}.json"
+  try:
+    with open(path, 'r') as file:
+      print("file exists")
+      history = json.load(file)
+    return history;
+  except FileNotFoundError: # file not found
+    # create new json file and return base chat history
+    print("file does not exist")
+    return saveChatHistory(INITIAL_CONTEXT_PROMPT, author)
+
+
+def saveChatHistory(history: list, author: str):
+  path = f"./src/chat-history/{author}.json"
+  with open(path, 'w+') as file:
+      json.dump(history, file)
+  return history
+
+
 class gpt():
   def __init__(self):
     self.client = OpenAI()
-    self.chat_history = dict()
     self.model = GPT_MODEL
 
   def askGPT(self, msg: str, author: str):
@@ -20,18 +41,20 @@ class gpt():
       print("Error: empty message, returning false.")
       return 0;
 
-    # check if user has chat history, and append new message to chat history
-    if (author not in self.chat_history):
-      self.chat_history[author] = INITIAL_CONTEXT_PROMPT
-    self.chat_history[author].append({"role" : "user", "content": msg})      
+    # load chat history
+    history = getChatHistory(author)
+    
+    # append new chat to history
+    history.append({"role" : "user", "content": msg})      
 
     # create completion
-    completion = self.client.chat.completions.create(model=self.model, messages=self.chat_history[author])
+    completion = self.client.chat.completions.create(model=self.model, messages=history)
 
     # get response from GPT
     response = completion.choices[0].message.content
 
-    # append response to chatHistory
-    self.chat_history[author].append({"role" : "system", "content": response})
+    # append and save response to chatHistory
+    history.append({"role" : "system", "content": response})
+    saveChatHistory(history, author)
 
     return response;
