@@ -14,7 +14,19 @@ client = discord.Client(intents=intents)
 def recommend(msg, author):
     prompt = msg[5:]
     response = gpt.askGPT(prompt, author)
-    return response
+    if response:
+        return response
+    else:
+        return "Error: empty message! Try '$rec *your question here*'"
+
+# when someone asks to add a game
+def addGame(msg, author):
+    prompt = msg[5:]
+    response = gpt.addGame(prompt, author)
+    if response:
+        return response
+    else:
+        return "Error: empty message! Try '$add *your game here*'"
 
 # when bot is turned on
 @client.event
@@ -35,5 +47,8 @@ async def on_message(message):
     # if msg starts with '$rec'
     elif msg.startswith("$rec"):
         await message.channel.send(recommend(msg, message.author))
+    # if msg starts with '$add'
+    elif msg.startswith("$add"):
+        await message.channel.send(addGame(msg, message.author))
 
 client.run(DISCORD_TOKEN)

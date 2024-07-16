@@ -30,6 +30,26 @@ def saveChatHistory(history: list, author: str):
       json.dump(history, file)
   return history
 
+def addGameToDB(game: str, author: str):
+  path = f"./src/game-lib/{author}.json"
+  try:
+    with open(path, 'a') as file:
+      file.write(game)
+  except FileNotFoundError: # file not found
+    # create new json file and append game to new file
+    with open(path, 'w+') as file:
+      file.write(game)
+
+def loadGameDB(author: str):
+  path = f"./src/game-lib/{author}.json"
+  try:
+    with open (path, 'r') as file:
+      list = []
+      for line in file:
+        list.append(line)
+      return list
+  except FileNotFoundError:
+    return []
 
 class gpt():
   def __init__(self):
@@ -39,7 +59,7 @@ class gpt():
   def askGPT(self, msg: str, author: str):
     if msg == "": # if msg is empty
       print("Error: empty message, returning false.")
-      return 0;
+      return 0
 
     # load chat history
     history = getChatHistory(author)
@@ -57,4 +77,12 @@ class gpt():
     history.append({"role" : "system", "content": response})
     saveChatHistory(history, author)
 
-    return response;
+    return response
+  
+  def addGame(self, msg: str, author: str):
+    if msg == "": # if msg is empty
+      print("Error: empty message, returning false.")
+      return 0
+    
+    # add game to database
+    addGameToDB(msg, author)
